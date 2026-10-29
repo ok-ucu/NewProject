@@ -9,6 +9,7 @@ class Settings(BaseSettings):
 
     parse_provider: Literal["mock", "bedrock"] = "mock"
     parse_bedrock_enabled: bool = False
+    parse_bedrock_api: Literal["anthropic", "converse"] = "anthropic"
     parse_region: str = "eu-north-1"
     parse_model_id: str = Field(
         default="eu.anthropic.claude-haiku-5-5",

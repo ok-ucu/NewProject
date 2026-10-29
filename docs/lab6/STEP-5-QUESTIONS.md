@@ -2,17 +2,18 @@
 
 The exact questions below were supplied by the user. Answers distinguish verified mock
 behavior from real Claude behavior, which has NOT been measured. No CloudWatch evidence
-or real token/cost results are claimed.
+is claimed. A separate real Nova local agenda success has measured tokens/latency, but unknown cost. Account-denial details and evidence boundaries
+are recorded in VERIFICATION.md.
 
 ## 1. Which of the five went wrong, and why? Which change fixes it: prompt, schema, validation, or UI?
 
-No real Claude runs exist, so we cannot identify a real Claude failure among the five.
+No successful real Claude inference results exist, so we cannot identify a Claude extraction failure among the five. The user reports account-level AccessDeniedException for Opus 5.5 and Haiku 5.5 in eu-north-1; this is an access blocker, not an observed extraction error.
 The local fixture tests produce the expected structured JSON for Ukrainian, English-email
 and relative-date inputs, and reject non-agenda and injection-only input. The latter two
 422 responses are expected safety behavior, not evidence that Claude failed or resisted
 an attack. The mock only recognizes its fixtures, so it cannot establish extraction quality.
 
-The relative-date case is the clearest ambiguity: “tomorrow” is undefined without an
+The relative-date fixture also assigns topic ownership to Alex from “with Alex”; that is an inference, not an explicit assignment, and should be clarified in the UI or left null. Its action owner Alex is explicit. The relative-date case has a further ambiguity: “tomorrow” is undefined without an
 anchor. The UI supplies a reviewed reference_date and source timezone; the prompt says
 to use that anchor and leave unknown deadlines null. The mock derives reference_date +
 one calendar day. Other fixes must follow observed errors: malformed JSON/extra fields →
@@ -20,6 +21,11 @@ schema validation; invalid dates → validation; plausible invented owner/task �
 human review (schema alone cannot detect factual invention); a missing/unclear source
 fact → nullable field and UI clarification rather than guessing. RESULTS.md analyzes the
 actual fixture fields; it is not a report of Claude performance.
+
+One separate real Nova Ukrainian agenda succeeded: owner Олена, 15 minutes, checklist
+and 2026-10-30 matched the source; the user clarified the topic before Save. This does not
+establish results for the five canonical inputs. No unsupported values were reported,
+but full original JSON is unavailable for an exhaustive audit. See RESULTS.md.
 
 ## 2. What did input 5 do? Which part of the design limits the damage even if the model obeys the injected text?
 
@@ -37,8 +43,9 @@ injection resistance. Do not execute or interpret returned text as commands/HTML
 
 ## 3. What does one parse cost? What would 20 organisations pay monthly at 30 agendas/week each? Compare with $7.30 VPC endpoint.
 
-Real Claude input/output usage and route-specific prices have not been recorded, so there
-is no measured per-parse USD figure. Mock model cost is zero and tokens are null; these
+Claude usage remains unavailable. The separate successful Nova agenda parse used 697 input
+and 127 output tokens, with 1073.03 ms parser latency. Route-specific prices are unverified,
+so there is no measured per-parse USD figure: `C_Nova = (697 × P_input + 127 × P_output) / 1,000,000`. Mock model cost is zero and tokens are null; these
 must not be substituted for Claude usage. With no caching/additional token categories:
 
 `C_parse = (T_input × P_input + T_output × P_output) / 1,000,000`
@@ -62,8 +69,10 @@ infrastructure, not a substitute for token charges: with it, approximately
 `2,600 × average(C_parse) + $7.30 + endpoint data fees + other services`.
 The prepared Lambda has no VpcConfig, so it does not require this VPC endpoint. This
 comparison does not establish current endpoint pricing, Free Plan eligibility, or actual
-account charges, and no endpoint was created. No actual Claude monthly total is knowable
-until usage/prices are measured.
+account charges, and no endpoint was created. No actual monthly USD total is knowable until verified prices and representative usage
+are available. A single Nova success is not a representative monthly average; the earlier
+697/120-token validation failure may also incur inference charges and is not a successful parse.
+The separately recorded Playground 101/23-token smoke test is not agenda usage.
 
 ## 4. How to use 500 saved agendas and their ai_suggestion to compare agenda-v2 against agenda-v1?
 

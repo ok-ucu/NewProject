@@ -1,0 +1,47 @@
+{
+  "evidence_source": "User-supplied local Docker backend logs and browser observations; not independently replayed",
+  "environment": "local Docker; AWS Bedrock inference in eu-north-1, EU inference profile",
+  "case_id": "nova-local-ukrainian-release",
+  "input": "План зустрічі щодо релізу. Обговорити готовність нової версії — 15 хвилин, відповідальна Олена. Олена має підготувати чекліст до 30 жовтня 2026 року.",
+  "sanitized_log": {
+    "event": "agenda_parse",
+    "status": "ok",
+    "provider": "bedrock",
+    "model": "eu.amazon.nova-2-lite-v1:0",
+    "bedrock_api": "converse",
+    "prompt_version": "agenda-v1",
+    "input_tokens": 697,
+    "output_tokens": 127,
+    "latency_ms": 1073.03,
+    "estimated_cost_usd": null
+  },
+  "http_statuses": {
+    "POST /api/meetings/<redacted>/agenda/parse": 200,
+    "PUT /api/meetings/<redacted>/agenda": 200
+  },
+  "reported_extracted_facts": {
+    "owner": "Олена",
+    "duration_minutes": 15,
+    "action": "Підготувати чекліст",
+    "deadline": "2026-10-30"
+  },
+  "reviewed_topic": "Обговорити готовність нової версії до релізу",
+  "user_observations": [
+    "Model extracted release-readiness topic",
+    "User edited topic before explicit Save",
+    "Saved agenda persisted after reopening meeting",
+    "Original AI suggestion remains available separately"
+  ],
+  "raw_model_json": null,
+  "raw_final_json": null,
+  "timestamp": null,
+  "request_id": null,
+  "reference_date": null,
+  "timezone": null,
+  "limitations": [
+    "Extracted facts above are semantic observations, not verbatim full model JSON",
+    "Not a rerun of the canonical Ukrainian fixture",
+    "No verified prices; USD cost unknown",
+    "No CloudWatch or deployed Lambda evidence"
+  ]
+}

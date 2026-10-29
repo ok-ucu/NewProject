@@ -1,0 +1,17 @@
+{
+  "evidence_type": "user_reported_playground_smoke",
+  "model_name": "Amazon Nova 2 Lite",
+  "model_or_profile_id": null,
+  "region": "eu-north-1",
+  "prompt": "Reply with OK only",
+  "response": "OK",
+  "input_tokens": 101,
+  "output_tokens": 23,
+  "reported_latency_ms": 645,
+  "latency_measurement_source": "AWS Bedrock Playground; reported by user",
+  "cost_usd": null,
+  "timestamp": null,
+  "request_id": null,
+  "is_agenda_parser_evaluation": false,
+  "notes": "Successful Playground test reported by user. Exact request model/profile ID pending. Not an agenda-v1 result, not one of the five agenda tests, not measured by this assistant."
+}

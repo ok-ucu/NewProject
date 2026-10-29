@@ -22,6 +22,11 @@ Parameters:
     Default: 'false'
     AllowedValues: ['false', 'true']
     Description: Leave false until access and Free Plan eligibility are separately resolved.
+  BedrockApi:
+    Type: String
+    Default: anthropic
+    AllowedValues: [anthropic, converse]
+    Description: Use converse with a verified Nova profile; anthropic retains Claude Messages.
   ModelProfileId:
     Type: String
     Default: eu.anthropic.claude-haiku-5-5
@@ -60,7 +65,7 @@ Resources:
                 Resource: !GetAtt ParserLogs.Arn
         - !If
           - BedrockEnabled
-          - PolicyName: InvokeSelectedClaudeOnly
+          - PolicyName: InvokeSelectedModelOnly
             PolicyDocument:
               Version: '2012-10-17'
               Statement:
@@ -91,6 +96,7 @@ Resources:
         Variables:
           PARSE_PROVIDER: !If [BedrockEnabled, bedrock, mock]
           PARSE_BEDROCK_ENABLED: !Ref EnableBedrock
+          PARSE_BEDROCK_API: !Ref BedrockApi
           PARSER_MODEL: !Ref ModelProfileId
           PARSE_MODEL_ID: !Ref ModelProfileId
           PARSE_REGION: !Ref AWS::Region

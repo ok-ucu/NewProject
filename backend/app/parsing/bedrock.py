@@ -25,3 +25,20 @@ def invoke_messages(model_id: str, region: str, prompt: str, max_tokens: int = 1
         ),
     )
     return json.loads(response["body"].read())
+
+
+def invoke_converse(model_id: str, region: str, prompt: str, max_tokens: int = 1024) -> dict:
+    """Nova 2 Lite Converse request; reasoning stays at its documented disabled default."""
+    import boto3
+    from botocore.config import Config
+
+    client = boto3.client(
+        "bedrock-runtime",
+        region_name=region,
+        config=Config(read_timeout=30, connect_timeout=5, retries={"max_attempts": 0}),
+    )
+    return client.converse(
+        modelId=model_id,
+        messages=[{"role": "user", "content": [{"text": prompt}]}],
+        inferenceConfig={"maxTokens": max_tokens},
+    )

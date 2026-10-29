@@ -40,8 +40,8 @@ explicit reference date. Non-agenda and prompt injection are rejected by mock.
 ## Bedrock and cloud
 
 PARSE_PROVIDER=mock; PARSE_BEDROCK_ENABLED=false. The adapter checks its enable flag
-before creating an AWS client. No AWS inference, FTU, Marketplace, deployment or plan
-change was performed. Provider prompt/schema now request an agenda only.
+before creating an AWS client. Defaults do not invoke AWS. The user later confirmed real Nova inference through the
+explicit local override; no deployment or plan change is evidenced. Provider prompt/schema now request an agenda only.
 
 infra/ai.yml prepares API Gateway JWT → standalone Lambda → mock/Bedrock and logs.
 backend/Dockerfile.ai builds that parser image (arm64); it has no DB dependencies at
@@ -54,9 +54,9 @@ the separate Lambda knows only the authorized principal and does not verify a me
 - ../adr/0006-llm-agenda-parsing.md — current ADR.
 - C4.md — context/container source diagrams and local/cloud distinctions.
 - cases.json, RESULTS.md, results.csv — required five categories; real Claude metrics blank.
-- STEP-5-QUESTIONS.md — answers to the four supplied questions; real measurements remain absent.
+- STEP-5-QUESTIONS.md — four supplied questions; real Nova usage and honest cost formula.
 - RECORDING.md — agenda demo storyboard <=45 seconds; final recording still needed.
-- BUDGET.md — $5 budget alarm preparation only; nothing configured in AWS.
+- BUDGET.md — user-created $5 Budget; monitoring only, not a spending cap.
 - VERIFICATION.md — checks and remaining work.
 
 ## Model configuration, hello command and metrics
@@ -92,3 +92,7 @@ items, owners, actions and deadlines, then explicitly **Save agenda**. Manual Sa
 ai_suggestion=null rather than pretending the user's draft came from Claude. The DB
 columns were already nullable, so this requires no additional migration. Parse failure
 never invokes Save; an API test confirms provider failure followed by manual Save.
+
+A real local Nova agenda success is recorded separately from all five mock fixtures in
+evidence/nova-local-agenda-success.json. Playground metrics are separate; CloudWatch/deployed
+evidence is not supplied. Nova 2 Lite is a configurable Converse alternative; see [NOVA.md](NOVA.md). Claude support and safe mock defaults are retained.

@@ -109,3 +109,23 @@ Save remains explicit and writes final agenda with ai_suggestion=null for manual
 No original AI JSON is fabricated for that path. A genuine parsed draft keeps a deep-copy
 of the original suggestion while the user edits the final agenda. Existing nullable
 JSONB columns support both paths without another schema migration.
+
+
+## Nova alternative after Claude account denial
+
+The user reports Nova 2 Lite Playground success in eu-north-1, while both Claude models
+remain blocked. Add PARSE_BEDROCK_API=converse as an explicitly configured alternative
+to anthropic; preserve the same agenda-v1 prompt/schema and review/save boundary.
+Converse output text and inputTokens/outputTokens are normalized to the existing service
+contract. Exact working account profile ID is pending; official EU candidate and evidence
+are documented in docs/lab6/NOVA.md. The Playground OK-only result is isolated from agenda
+evaluation. This is a deviation from Moodle's Claude requirement requiring instructor
+acceptance. No successful Nova agenda inference or deployment is claimed.
+
+## Observed Nova result
+
+User-supplied local Docker evidence confirms Nova 2 Lite Converse agenda-v1 parse and
+human-reviewed Save (697/127 tokens, 1073.03 ms, unknown USD cost). Original AI suggestion
+remains separate. See docs/lab6/evidence/nova-local-agenda-success.json. This does not
+prove deployed Lambda/CloudWatch operation or five-case quality, and does not remove
+the need for instructor acceptance of the Claude-to-Nova substitution.

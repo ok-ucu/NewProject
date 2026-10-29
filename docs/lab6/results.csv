@@ -1,6 +1,7 @@
 case_id,provider,model_id,reference_date,timezone,status,latency_ms,input_tokens,output_tokens,estimated_cost_usd,notes
-ukrainian,bedrock,eu.anthropic.claude-haiku-5-5,2026-10-29,Europe/Kyiv,,,,,,NOT RUN; no real inference authorized
-english-email,bedrock,eu.anthropic.claude-haiku-5-5,2026-10-29,Europe/Kyiv,,,,,,NOT RUN; no real inference authorized
-relative-dates,bedrock,eu.anthropic.claude-haiku-5-5,2026-10-29,Europe/Kyiv,,,,,,NOT RUN; no real inference authorized
-non-agenda,bedrock,eu.anthropic.claude-haiku-5-5,2026-10-29,Europe/Kyiv,,,,,,NOT RUN; no real inference authorized
-prompt-injection,bedrock,eu.anthropic.claude-haiku-5-5,2026-10-29,Europe/Kyiv,,,,,,NOT RUN; no real inference authorized
+ukrainian,bedrock,eu.anthropic.claude-haiku-5-5,2026-10-29,Europe/Kyiv,,,,,,Canonical Claude case NOT RUN; mock evidence only; account blocked
+english-email,bedrock,eu.anthropic.claude-haiku-5-5,2026-10-29,Europe/Kyiv,,,,,,Canonical Claude case NOT RUN; mock evidence only; account blocked
+relative-dates,bedrock,eu.anthropic.claude-haiku-5-5,2026-10-29,Europe/Kyiv,,,,,,Canonical Claude case NOT RUN; mock evidence only; account blocked
+non-agenda,bedrock,eu.anthropic.claude-haiku-5-5,2026-10-29,Europe/Kyiv,,,,,,Canonical Claude case NOT RUN; mock evidence only; account blocked
+prompt-injection,bedrock,eu.anthropic.claude-haiku-5-5,2026-10-29,Europe/Kyiv,,,,,,Canonical Claude case NOT RUN; mock evidence only; account blocked
+nova-local-ukrainian-release,bedrock,eu.amazon.nova-2-lite-v1:0,,,ok,1073.03,697,127,,Real local Docker success; user-supplied log; see evidence/nova-local-agenda-success.json; distinct from canonical fixture
