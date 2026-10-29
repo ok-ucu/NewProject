@@ -44,8 +44,24 @@ excluded from the staged tree. Cost remains unknown until applicable prices are 
 
 ## Submission limits
 
-Five category fixtures and mock analysis exist; they do not constitute five real model
-results. Four exact user-supplied Step 5 questions are answered. Full Moodle schema/sample
+All five category fixtures now have real Nova responses and completed source-based
+field analysis in evidence/nova-five-real.jsonl. Three schema-valid responses include
+one semantic date miss; the two rejected outputs are analyzed separately. Four exact user-supplied Step 5 questions are answered. Full Moodle schema/sample
 wording and What you submit still need comparison against the original task. Nova-for-Claude
 requires instructor acceptance. A <=45-second demo recording and redacted AWS screenshots
 are not currently supplied. See SUBMISSION.md for the attachment checklist.
+
+## Five-case real evidence verification
+
+Six JSONL records: one preflight + five cases. Original response text, validation,
+usage, timestamps and both latency measurements were preserved; only field_analysis
+was annotated. Inputs match the fixture source hash. CSV now includes five measured
+Nova rows, keeping historical Claude placeholders and the earlier distinct Nova case.
+No batch Save or HTTP outcome is invented; runner invokes the application parser directly.
+Local Docker invokes real Bedrock; CloudWatch/deployed evidence remains unconfirmed.
+Final isolated checks passed: 97 backend tests, 5 credential-helper tests, backend and
+runner Ruff lint/format, helper lint, frontend production build and oxlint. Offline replay
+of all five original texts through extraction and Pydantic reproduced three valid drafts
+and the same two validation error types. JSONL/CSV cross-checks matched all five logged
+metrics; all pre-existing evidence fields were compared unchanged. Final staged whitespace
+and secret-pattern checks passed. No provider was invoked by these checks.

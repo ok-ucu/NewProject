@@ -53,7 +53,7 @@ the separate Lambda knows only the authorized principal and does not verify a me
 
 - ../adr/0006-llm-agenda-parsing.md — current ADR.
 - C4.md — context/container source diagrams and local/cloud distinctions.
-- cases.json, RESULTS.md, results.csv — required five categories; real Claude metrics blank.
+- cases.json, RESULTS.md, results.csv — required five categories; real Nova metrics and historical unmeasured Claude rows.
 - STEP-5-QUESTIONS.md — four supplied questions; real Nova usage and honest cost formula.
 - RECORDING.md — agenda demo storyboard <=45 seconds; final recording still needed.
 - BUDGET.md — user-created $5 Budget; monitoring only, not a spending cap.
@@ -96,3 +96,12 @@ never invokes Save; an API test confirms provider failure followed by manual Sav
 A real local Nova agenda success is recorded separately from all five mock fixtures in
 evidence/nova-local-agenda-success.json. Playground metrics are separate; CloudWatch/deployed
 evidence is not supplied. Nova 2 Lite is a configurable Converse alternative; see [NOVA.md](NOVA.md). Claude support and safe mock defaults are retained.
+
+## Completed real five-case evaluation
+
+See RESULTS.md, results.csv and evidence/nova-five-real.jsonl: five actual Nova outputs,
+not mock substitutes, with source-based field analysis and preserved original_model_text.
+Three pass schema; relative date is semantically missing. Non-agenda refusal is expected;
+injection is refused but extra prose is rejected. Costs remain null. These are real
+Bedrock calls from local Docker, not CloudWatch or deployed Lambda evidence. Four Step 5
+answers now use this evidence. No additional inference was performed during finalization.

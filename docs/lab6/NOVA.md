@@ -101,3 +101,11 @@ as the target profile. This resolves the requested target ID but is not an indep
 account inference/access check. Preparation exports short-lived CLI credentials outside
 the repo and mounts them read-only; the running backend remains mock until the user
 explicitly selects the override. No inference is performed by the preparation helper.
+
+## Completed canonical five-case evidence
+
+All five inputs now have real Nova output, validation, usage/latency and source-based
+field review in evidence/nova-five-real.jsonl. See RESULTS.md and STEP-5-QUESTIONS.md
+for the relative-date omission, unsupported topic ownership and injection refusal with
+extra-prose format failure. This supersedes the earlier pending-evaluation notes above.
+Costs remain null and cloud deployment/CloudWatch evidence remains unconfirmed.

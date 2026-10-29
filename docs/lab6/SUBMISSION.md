@@ -16,9 +16,9 @@
 
 Claude Opus/Haiku are account-blocked in eu-north-1. Nova is a working alternative but
 an explicit deviation from Moodle's Claude requirement; obtain instructor acceptance.
-The separate successful Ukrainian input is not the canonical fixture. Other canonical
-cases have mock evidence only; five real model results and full raw JSON/corrections
-are not yet collected. No verified price, CloudWatch invocation log or deployed parser
+Five canonical inputs now have actual Nova text, validation, metrics and field analysis
+in evidence/nova-five-real.jsonl. Relative date omission and injection format failure
+are documented, not hidden. This parse-only batch did not save corrections. No verified price, CloudWatch invocation log or deployed parser
 evidence is supplied. Playground OK-only metrics are separate from agenda metrics.
 Full Moodle rubric/schema and sample wording need final comparison with the original.
 
@@ -29,16 +29,16 @@ Full Moodle rubric/schema and sample wording need final comparison with the orig
 2. <=45-second GIF/MP4: select existing meeting → Paste agenda → Parse → edit → Save →
    reopen final agenda and original suggestion. See RECORDING.md. No video is currently
    available in the project search; duration cannot be verified.
-3. RESULTS.md, results.csv, cases.json, STEP-5-QUESTIONS.md and the two separate JSON
-   evidence files. Attach raw model/final JSON when available, without reconstructing it.
+3. RESULTS.md, results.csv, cases.json, STEP-5-QUESTIONS.md and all evidence files, particularly nova-five-real.jsonl (raw model text preserved).
+   The batch has no final saved JSON; the earlier browser Save is separately documented.
 4. ADR 0006, C4.md, infra/ai.yml and VERIFICATION.md.
 5. Redacted screenshots: successful local result, Claude account denial, manually created
    $5 Budget with notification configuration. Screenshots are not supplied here.
 
 Suggested disclosure: “Real Nova 2 Lite agenda parsing and human-reviewed persistence
 were demonstrated locally (697/127 tokens, 1073.03 ms). Claude is unavailable to this
-account, so Nova is a disclosed substitute. Five fixtures remain labeled as mock evidence.
+account, so Nova is a disclosed substitute. Five real test outputs are attached separately from deterministic mock fixtures.
 Cost is unknown; deployment and CloudWatch invocation evidence are not claimed.”
 
-If cloud logs/deployment or all five real cases are mandatory, these remain incomplete;
+If cloud logs/deployment are mandatory, those remain incomplete;
 this checklist grants no exemption and does not require changing AWS Free Plan.
