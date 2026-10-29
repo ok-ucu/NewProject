@@ -22,10 +22,18 @@ type Props = {
   open: boolean
   onOpenChange: (open: boolean) => void
   onEdit: (meeting: Meeting) => void
+  onPasteAgenda: (meeting: Meeting) => void
   onDelete: (meeting: Meeting) => void
 }
 
-export function MeetingDetailsDialog({ meeting, open, onOpenChange, onEdit, onDelete }: Props) {
+export function MeetingDetailsDialog({
+  meeting,
+  open,
+  onOpenChange,
+  onEdit,
+  onDelete,
+  onPasteAgenda,
+}: Props) {
   const editButtonRef = useRef<HTMLButtonElement>(null)
 
   return (
@@ -74,6 +82,37 @@ export function MeetingDetailsDialog({ meeting, open, onOpenChange, onEdit, onDe
                 </>
               )}
 
+              {meeting.agenda && (
+                <section className="grid gap-3">
+                  <h3>Agenda</h3>
+                  <p>{meeting.agenda.summary}</p>
+                  <ol className="list-decimal pl-5">
+                    {meeting.agenda.items.map((item, i) => (
+                      <li key={i}>
+                        <strong>{item.topic}</strong> · {item.owner ?? 'Unassigned'} ·{' '}
+                        {item.duration_minutes ?? '?'} min
+                        <p>{item.notes}</p>
+                        <ul>
+                          {item.action_items.map((action, j) => (
+                            <li key={j}>
+                              {action.task} — {action.owner ?? 'Unassigned'} —{' '}
+                              {action.deadline ?? 'No deadline'}
+                            </li>
+                          ))}
+                        </ul>
+                      </li>
+                    ))}
+                  </ol>
+                  <details>
+                    <summary>Original AI suggestion</summary>
+                    <pre className="overflow-auto text-xs">
+                      {meeting.ai_suggestion
+                        ? JSON.stringify(meeting.ai_suggestion, null, 2)
+                        : 'Manual agenda — no AI suggestion'}
+                    </pre>
+                  </details>
+                </section>
+              )}
               <div className="hairline" />
               <div className="flex flex-col gap-3">
                 <h3 className="flex items-center gap-2 text-lg">
@@ -107,6 +146,9 @@ export function MeetingDetailsDialog({ meeting, open, onOpenChange, onEdit, onDe
               <Button variant="ghost" onClick={() => onDelete(meeting)}>
                 <Trash2Icon />
                 Delete
+              </Button>
+              <Button variant="outline" onClick={() => onPasteAgenda(meeting)}>
+                Paste an agenda
               </Button>
               <Button ref={editButtonRef} onClick={() => onEdit(meeting)}>
                 <PencilIcon />

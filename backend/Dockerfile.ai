@@ -1,0 +1,9 @@
+# Standalone parser image: no database startup, migrations or local-auth capability.
+FROM public.ecr.aws/lambda/python:3.14
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+WORKDIR ${LAMBDA_TASK_ROOT}
+COPY pyproject.toml uv.lock ./
+RUN uv sync --locked --no-dev --no-install-project
+COPY app ./app
+ENV PYTHONPATH="${LAMBDA_TASK_ROOT}/.venv/lib/python3.14/site-packages:${LAMBDA_TASK_ROOT}"
+CMD ["app.parsing.lambda_handler.handler"]

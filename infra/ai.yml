@@ -1,0 +1,156 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Prepared Lab 6 structured agenda parser only; JWT HTTP API, Lambda image, scoped Bedrock and logs. Not deployed.
+Parameters:
+  ProjectName:
+    Type: String
+    Default: new-project
+    AllowedPattern: '[a-z][a-z0-9-]*'
+  ImageUri:
+    Type: String
+    Description: Existing ECR URI for an arm64 image built from backend/Dockerfile.ai.
+  CognitoUserPoolId:
+    Type: String
+    AllowedPattern: '[a-z0-9-]+_[a-zA-Z0-9]+'
+  CognitoClientId:
+    Type: String
+  FrontendOrigin:
+    Type: String
+    Default: http://localhost:3000
+    Description: One exact allowed browser origin.
+  EnableBedrock:
+    Type: String
+    Default: 'false'
+    AllowedValues: ['false', 'true']
+    Description: Leave false until access and Free Plan eligibility are separately resolved.
+  ModelProfileId:
+    Type: String
+    Default: eu.anthropic.claude-haiku-5-5
+    AllowedPattern: '[a-zA-Z0-9.:-]+'
+    Description: Inference profile ID; must match the selected foundation model.
+  FoundationModelId:
+    Type: String
+    Default: anthropic.claude-haiku-5-5
+    AllowedPattern: '[a-zA-Z0-9.:-]+'
+    Description: Exact foundation model ID used by ModelProfileId for scoped IAM permissions.
+Conditions:
+  BedrockEnabled: !Equals [!Ref EnableBedrock, 'true']
+Resources:
+  ParserLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /${ProjectName}/ai-parser
+      RetentionInDays: 7
+      Tags: [{Key: PROJECT_NAME, Value: !Ref ProjectName}]
+  ParserRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: {Service: lambda.amazonaws.com}
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ParserLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: [logs:CreateLogStream, logs:PutLogEvents]
+                Resource: !GetAtt ParserLogs.Arn
+        - !If
+          - BedrockEnabled
+          - PolicyName: InvokeSelectedClaudeOnly
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action: bedrock:InvokeModel
+                  Resource: !Sub arn:${AWS::Partition}:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/${ModelProfileId}
+                - Effect: Allow
+                  Action: bedrock:InvokeModel
+                  Resource: !Sub arn:${AWS::Partition}:bedrock:*::foundation-model/${FoundationModelId}
+                  Condition:
+                    StringEquals:
+                      bedrock:InferenceProfileArn: !Sub arn:${AWS::Partition}:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/${ModelProfileId}
+          - !Ref AWS::NoValue
+      Tags: [{Key: PROJECT_NAME, Value: !Ref ProjectName}]
+  Parser:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-ai-parser
+      PackageType: Image
+      Code: {ImageUri: !Ref ImageUri}
+      Architectures: [arm64]
+      Role: !GetAtt ParserRole.Arn
+      MemorySize: 512
+      Timeout: 40
+      LoggingConfig:
+        LogGroup: !Ref ParserLogs
+      Environment:
+        Variables:
+          PARSE_PROVIDER: !If [BedrockEnabled, bedrock, mock]
+          PARSE_BEDROCK_ENABLED: !Ref EnableBedrock
+          PARSER_MODEL: !Ref ModelProfileId
+          PARSE_MODEL_ID: !Ref ModelProfileId
+          PARSE_REGION: !Ref AWS::Region
+      Tags: [{Key: PROJECT_NAME, Value: !Ref ProjectName}]
+  Api:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Sub ${ProjectName}-ai
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins: [!Ref FrontendOrigin]
+        AllowMethods: [POST]
+        AllowHeaders: [Content-Type, Authorization]
+      Tags: {PROJECT_NAME: !Ref ProjectName}
+  Authorizer:
+    Type: AWS::ApiGatewayV2::Authorizer
+    Properties:
+      ApiId: !Ref Api
+      Name: CognitoJWT
+      AuthorizerType: JWT
+      IdentitySource: ['$request.header.Authorization']
+      JwtConfiguration:
+        Audience: [!Ref CognitoClientId]
+        Issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${CognitoUserPoolId}
+  Integration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref Api
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt Parser.Arn
+      PayloadFormatVersion: '2.0'
+      TimeoutInMillis: 30000
+  ParseRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref Api
+      RouteKey: POST /api/parse
+      AuthorizationType: JWT
+      AuthorizerId: !Ref Authorizer
+      Target: !Sub integrations/${Integration}
+  Stage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref Api
+      StageName: '$default'
+      AutoDeploy: true
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 2
+        ThrottlingRateLimit: 1
+      Tags: {PROJECT_NAME: !Ref ProjectName}
+  InvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref Parser
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/POST/api/parse
+Outputs:
+  ParseUrl:
+    Value: !Sub https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}/api/parse
+  LogGroup:
+    Value: !Ref ParserLogs

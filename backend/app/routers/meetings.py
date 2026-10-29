@@ -1,13 +1,25 @@
 import uuid
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from starlette.concurrency import run_in_threadpool
 
+from app.agenda import AgendaSave
 from app.auth import CurrentUser
 from app.db import SessionDep
 from app.models import Meeting, Participant, User
+from app.parsing.service import (
+    ParseError,
+    ParseRequest,
+    ParseResponse,
+    Provider,
+    ProviderError,
+    get_provider,
+    parse_agenda,
+)
 from app.schemas import MeetingCreate, MeetingRead
 
 router = APIRouter(prefix="/meetings", tags=["meetings"])
@@ -98,3 +110,36 @@ async def delete_meeting(meeting_id: uuid.UUID, session: SessionDep, user: Curre
     await session.delete(meeting)
     await session.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/{meeting_id}/agenda/parse", response_model=ParseResponse)
+async def parse_existing_agenda(
+    meeting_id: uuid.UUID,
+    payload: ParseRequest,
+    session: SessionDep,
+    user: CurrentUser,
+    provider: Annotated[Provider, Depends(get_provider)],
+) -> ParseResponse:
+    await _get_meeting(session, meeting_id, user)
+    try:
+        return await run_in_threadpool(parse_agenda, payload, provider)
+    except ParseError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except ProviderError as exc:
+        raise HTTPException(503, str(exc)) from exc
+
+
+@router.put("/{meeting_id}/agenda", response_model=MeetingRead)
+async def save_agenda(
+    meeting_id: uuid.UUID,
+    payload: AgendaSave,
+    session: SessionDep,
+    user: CurrentUser,
+) -> Meeting:
+    meeting = await _get_meeting(session, meeting_id, user)
+    meeting.agenda = payload.agenda.model_dump(mode="json")
+    meeting.ai_suggestion = (
+        payload.ai_suggestion.model_dump(mode="json") if payload.ai_suggestion else None
+    )
+    await session.commit()
+    return await _get_meeting(session, meeting.id, user)

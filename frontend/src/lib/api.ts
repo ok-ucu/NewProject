@@ -8,6 +8,16 @@ export type Participant = {
   email: string
 }
 
+export type ActionItem = { task: string; owner: string | null; deadline: string | null }
+export type AgendaItem = {
+  topic: string
+  owner: string | null
+  duration_minutes: number | null
+  notes: string
+  action_items: ActionItem[]
+}
+export type Agenda = { summary: string; items: AgendaItem[] }
+
 export type Meeting = {
   id: string
   title: string
@@ -17,6 +27,8 @@ export type Meeting = {
   place: string
   participants: Participant[]
   created_at: string
+  agenda: Agenda | null
+  ai_suggestion: Agenda | null
 }
 
 export type MeetingCreate = {
@@ -91,7 +103,31 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>
 }
 
+export type ParsedMeeting = {
+  draft: Agenda
+  warnings: string[]
+  metrics: {
+    provider: 'mock' | 'bedrock'
+    model_id: string
+    prompt_version: string
+    latency_ms: number
+    input_tokens: number | null
+    output_tokens: number | null
+    estimated_cost_usd: number | null
+  }
+}
+
 export const api = {
+  parseAgenda: (id: string, text: string, timezone: string, reference_date: string) =>
+    request<ParsedMeeting>(`/meetings/${id}/agenda/parse`, {
+      method: 'POST',
+      body: JSON.stringify({ text, timezone, reference_date }),
+    }),
+  saveAgenda: (id: string, agenda: Agenda, ai_suggestion: Agenda | null) =>
+    request<Meeting>(`/meetings/${id}/agenda`, {
+      method: 'PUT',
+      body: JSON.stringify({ agenda, ai_suggestion }),
+    }),
   listMeetings: () => request<Meeting[]>('/meetings'),
   createMeeting: (data: MeetingCreate) =>
     request<Meeting>('/meetings', { method: 'POST', body: JSON.stringify(data) }),

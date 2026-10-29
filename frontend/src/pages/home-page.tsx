@@ -7,6 +7,7 @@ import { DateNavigation, ViewSwitcher } from '@/components/calendar-toolbar'
 import { DeleteMeetingDialog } from '@/components/delete-meeting-dialog'
 import { MeetingDetailsDialog } from '@/components/meeting-details-dialog'
 import { MeetingFormDialog } from '@/components/meeting-form-dialog'
+import { PasteAgendaDialog } from '@/components/paste-agenda-dialog'
 import { MeetingsView } from '@/components/meetings-view'
 import { Button } from '@/components/ui/button'
 import { useMeetings } from '@/hooks/queries'
@@ -21,6 +22,7 @@ export function HomePage() {
   const [mode, setMode] = useState<ViewMode>('list')
   const [anchor, setAnchor] = useState(() => new Date())
   const days = visibleDays(mode, anchor)
+  const [agendaMeeting, setAgendaMeeting] = useState<Meeting | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   // Kept after the form closes so the dialog doesn't flip to "Add meeting" while fading out.
   const [meetingToEdit, setMeetingToEdit] = useState<Meeting | null>(null)
@@ -113,6 +115,9 @@ export function HomePage() {
         />
       </main>
 
+      {agendaMeeting && (
+        <PasteAgendaDialog meeting={agendaMeeting} onClose={() => setAgendaMeeting(null)} />
+      )}
       <MeetingFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
@@ -124,6 +129,10 @@ export function HomePage() {
         open={detailsOpen}
         onOpenChange={setDetailsOpen}
         onEdit={openEdit}
+        onPasteAgenda={(meeting) => {
+          setDetailsOpen(false)
+          setAgendaMeeting(meeting)
+        }}
         onDelete={openDelete}
       />
       <DeleteMeetingDialog meeting={meetingToDelete} onClose={() => setMeetingToDelete(null)} />

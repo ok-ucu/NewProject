@@ -1,11 +1,22 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
-from pydantic import field_validator
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore", populate_by_name=True)
+
+    parse_provider: Literal["mock", "bedrock"] = "mock"
+    parse_bedrock_enabled: bool = False
+    parse_region: str = "eu-north-1"
+    parse_model_id: str = Field(
+        default="eu.anthropic.claude-haiku-5-5",
+        validation_alias=AliasChoices("PARSER_MODEL", "PARSE_MODEL_ID"),
+        min_length=1,
+    )
+    parse_input_usd_per_million: float | None = None
+    parse_output_usd_per_million: float | None = None
 
     database_url: str = "postgresql+asyncpg://meetings:meetings@localhost:5432/meetings"
     # Lambda serves one request per instance at a time, so it runs with a pool of 1.

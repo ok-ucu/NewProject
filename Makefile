@@ -108,4 +108,10 @@ destroy-frontend: env ## Delete the S3 bucket, CloudFront distribution and domai
 	@$(AWS_ENV) ./infra/destroy-frontend.sh
 
 infra-lint: ## Lint the CloudFormation templates
-	uvx cfn-lint infra/*.yaml
+	uvx cfn-lint infra/*.yaml infra/*.yml
+
+
+.PHONY: llm-hello
+llm-hello: ## Invoke Bedrock once; prints response, stop_reason and usage (may activate access/consume credits)
+	@test -n "$(or $(PARSER_MODEL),$(PARSE_MODEL_ID))" || { echo 'Set PARSER_MODEL or PARSE_MODEL_ID before llm-hello' >&2; exit 2; }
+	cd backend && PARSER_MODEL="$(or $(PARSER_MODEL),$(PARSE_MODEL_ID))" PARSE_REGION="$(or $(PARSE_REGION),eu-north-1)" uv run python -m app.parsing.hello

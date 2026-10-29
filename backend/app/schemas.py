@@ -12,6 +12,8 @@ from pydantic import (
     model_validator,
 )
 
+from app.agenda import Agenda
+
 NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 
@@ -73,6 +75,8 @@ class MeetingRead(BaseModel):
     place: str
     participants: list[ParticipantRead]
     created_at: datetime
+    agenda: Agenda | None = None
+    ai_suggestion: Agenda | None = None
 
     @field_serializer("starts_at", "ends_at", "created_at")
     def to_utc(self, value: datetime) -> str:
