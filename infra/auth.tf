@@ -4,7 +4,7 @@
 resource "aws_cognito_user_pool_client" "existing" {
   name                                          = "SpryMeetings"
   user_pool_id                                  = var.cognito_user_pool_id
-  generate_secret                               = false
+  # generate_secret is omitted to preserve the imported Cognito client.
   access_token_validity                         = 60
   id_token_validity                             = 60
   refresh_token_validity                        = 5
