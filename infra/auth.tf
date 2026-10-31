@@ -2,8 +2,8 @@
 # Read-only snapshot: 2026-10-31. Intentionally preserve actual AWS settings where
 # auth.yaml differs (refresh 5 days, ALLOW_USER_AUTH, exact URLs and default redirect).
 resource "aws_cognito_user_pool_client" "existing" {
-  name                                          = "SpryMeetings"
-  user_pool_id                                  = var.cognito_user_pool_id
+  name         = "SpryMeetings"
+  user_pool_id = var.cognito_user_pool_id
   # generate_secret is omitted to preserve the imported Cognito client.
   access_token_validity                         = 60
   id_token_validity                             = 60
