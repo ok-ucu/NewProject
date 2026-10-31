@@ -122,8 +122,20 @@ resource "aws_lambda_function" "report_builder" {
       DB_MAX_OVERFLOW     = "0"
     }
   }
-  tags       = local.reports_tags
-  depends_on = [aws_iam_role_policy_attachment.report_builder_logs, aws_iam_role_policy.write_reports, aws_iam_role_policy.consume_reports, aws_iam_role_policy.report_database]
+  tags = local.reports_tags
+  # The SQS event source references this function, so it also waits for bucket readiness.
+  # Notification depends on the mailer (not the builder), avoiding a dependency cycle.
+  depends_on = [
+    aws_iam_role_policy_attachment.report_builder_logs,
+    aws_iam_role_policy.write_reports,
+    aws_iam_role_policy.consume_reports,
+    aws_iam_role_policy.report_database,
+    aws_s3_bucket_notification.reports,
+    aws_s3_bucket_public_access_block.reports,
+    aws_s3_bucket_ownership_controls.reports,
+    aws_s3_bucket_server_side_encryption_configuration.reports,
+    aws_s3_bucket_lifecycle_configuration.reports,
+  ]
 }
 resource "aws_iam_role" "report_mailer" {
   count              = var.enable_reports ? 1 : 0

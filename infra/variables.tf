@@ -43,6 +43,10 @@ variable "cognito_user_pool_id" {
   default     = "eu-north-1_TvbEOosgs"
   description = "Existing pool; not created or managed here."
   nullable    = false
+  validation {
+    condition     = can(regex("^[a-z0-9-]+_[a-zA-Z0-9]+$", var.cognito_user_pool_id))
+    error_message = "Use the existing Cognito pool ID in region_identifier form (ai.yml constraint)."
+  }
 }
 
 variable "cognito_client_id" {
@@ -69,8 +73,8 @@ variable "enable_ai" {
   description = "Explicit opt-in for all AI infrastructure; false is NOT completed migration."
   nullable    = false
   validation {
-    condition     = !var.enable_ai || length(trimspace(var.ai_image_uri)) > 0
-    error_message = "Enabling AI requires an existing parser image URI."
+    condition     = !var.enable_ai || alltrue([for value in [var.ai_image_uri, var.model_profile_id, var.foundation_model_id] : length(trimspace(value)) > 0])
+    error_message = "Enabling AI requires an existing parser image URI and nonempty model/profile IDs."
   }
 }
 
@@ -114,6 +118,10 @@ variable "db_user" {
   default     = "meetings"
   description = "Existing DB user; must match external database."
   nullable    = false
+  validation {
+    condition     = can(regex("^[a-zA-Z][a-zA-Z0-9_]*$", var.db_user))
+    error_message = "DBUser must start with a letter and contain only letters, digits or underscores."
+  }
 }
 
 variable "db_name" {
@@ -121,6 +129,10 @@ variable "db_name" {
   default     = "meetings"
   description = "Existing DB name."
   nullable    = false
+  validation {
+    condition     = can(regex("^[a-zA-Z][a-zA-Z0-9_]*$", var.db_name))
+    error_message = "DBName must start with a letter and contain only letters, digits or underscores."
+  }
 }
 
 variable "ses_sender_email" {
@@ -129,6 +141,10 @@ variable "ses_sender_email" {
   description = "Existing verified SES sender; supply privately, not in git."
   nullable    = false
   sensitive   = true
+  validation {
+    condition     = var.ses_sender_email == "" || can(regex("^[^@[:space:]]+@[^@[:space:]]+[.][^@[:space:]]+$", var.ses_sender_email))
+    error_message = "Supply a valid SES sender email; empty is allowed only while Reports is disabled."
+  }
 }
 
 variable "ses_recipient_email" {
@@ -137,6 +153,10 @@ variable "ses_recipient_email" {
   description = "Report recipient; supply privately, not in git."
   nullable    = false
   sensitive   = true
+  validation {
+    condition     = var.ses_recipient_email == "" || can(regex("^[^@[:space:]]+@[^@[:space:]]+[.][^@[:space:]]+$", var.ses_recipient_email))
+    error_message = "Supply a valid recipient email; empty is allowed only while Reports is disabled."
+  }
 }
 
 variable "ses_identity_name" {
@@ -145,6 +165,10 @@ variable "ses_identity_name" {
   description = "Existing verified SES identity; not created here."
   nullable    = false
   sensitive   = true
+  validation {
+    condition     = var.ses_identity_name == "" || length(trimspace(var.ses_identity_name)) >= 1
+    error_message = "Reports requires the name of an existing verified SES identity."
+  }
 }
 
 variable "frontend_origin" {
@@ -170,6 +194,10 @@ variable "model_profile_id" {
   default     = "eu.anthropic.claude-haiku-5-5"
   description = "ai.yml default; no model invocation occurs at validation."
   nullable    = false
+  validation {
+    condition     = var.model_profile_id == "" || can(regex("^[a-zA-Z0-9.:-]+$", var.model_profile_id))
+    error_message = "Use a model profile ID containing letters, digits, dots, colons or hyphens; empty is allowed only with AI disabled."
+  }
 }
 
 variable "foundation_model_id" {
@@ -177,4 +205,8 @@ variable "foundation_model_id" {
   default     = "anthropic.claude-haiku-5-5"
   description = "Must match the selected profile when enabling Bedrock."
   nullable    = false
+  validation {
+    condition     = var.foundation_model_id == "" || can(regex("^[a-zA-Z0-9.:-]+$", var.foundation_model_id))
+    error_message = "Use a foundation model ID containing letters, digits, dots, colons or hyphens; empty is allowed only with AI disabled."
+  }
 }
