@@ -115,3 +115,19 @@ infra-lint: ## Lint the CloudFormation templates
 llm-hello: ## Invoke Bedrock once; prints response, stop_reason and usage (may activate access/consume credits)
 	@test -n "$(or $(PARSER_MODEL),$(PARSE_MODEL_ID))" || { echo 'Set PARSER_MODEL or PARSE_MODEL_ID before llm-hello' >&2; exit 2; }
 	cd backend && PARSER_MODEL="$(or $(PARSER_MODEL),$(PARSE_MODEL_ID))" PARSE_REGION="$(or $(PARSE_REGION),eu-north-1)" PARSE_BEDROCK_API="$(or $(PARSE_BEDROCK_API),anthropic)" uv run python -m app.parsing.hello
+
+# Lab 7: local validation and plan-only commands. No apply/destroy targets.
+TERRAFORM ?= terraform
+.PHONY: infra-fmt infra-validate infra-plan infra-output
+infra-fmt: ## Format Terraform configuration
+	$(TERRAFORM) -chdir=infra fmt -recursive
+
+infra-validate: ## Initialize providers only, then validate without AWS changes
+	$(TERRAFORM) -chdir=infra init -backend=false -input=false
+	$(TERRAFORM) -chdir=infra validate
+
+infra-plan: ## Review speculative HCP plan; requires configured remote workspace and credentials
+	$(TERRAFORM) -chdir=infra plan -input=false
+
+infra-output: ## Read Terraform state outputs; requires initialized HCP backend
+	$(TERRAFORM) -chdir=infra output

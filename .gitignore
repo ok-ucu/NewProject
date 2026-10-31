@@ -7,3 +7,15 @@ node_modules/
 dist/
 .idea/
 .DS_Store
+
+# Terraform local data/state/plans and private input files. Keep .terraform.lock.hcl.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+.terraformrc
+credentials.tfrc.json
